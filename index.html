@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1E1220">
+<title>Daily Check-In · 21-Day Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --plum:#1E1220; --plum-2:#2E1E2E; --plum-3:#3D2A3B; --cream:#FFF7F0; --soft:#E9DCE4; --dim:#B9A6B4;
+    --orange:#FF6B1A; --pink:#FF2D87; --peach:#FFB37A; --error:#FF8AA8;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--plum)}
+  body{margin:0;background:var(--plum);color:var(--cream);font-family:'DM Sans',system-ui,sans-serif;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px}
+  [hidden]{display:none!important}
+  h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-.02em;margin:0;line-height:1}
+  p{margin:0}
+  a{color:var(--peach)}
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--peach)}
+  .muted{color:var(--soft)}
+  .small{font-size:14px}
+
+  header.top{padding:28px 0 8px}
+  .brandrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .signout{background:none;border:0;color:var(--dim);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;min-height:44px;padding:0 4px}
+
+  /* Buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border:0;border-radius:999px;background:var(--orange);color:var(--plum);font:inherit;font-weight:700;font-size:18px;cursor:pointer;text-decoration:none;padding:0 22px;text-align:center}
+  .btn:hover{filter:brightness(1.06)}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn.pink{background:var(--pink)}
+  .btn.ghost{background:transparent;color:var(--cream);border:2px solid var(--plum-3)}
+  .btn:focus-visible,.seg button:focus-visible,.signout:focus-visible{outline:3px solid var(--peach);outline-offset:3px}
+
+  /* Sign in */
+  .hero{padding:24px 0 8px}
+  .hero h1{font-size:clamp(52px,15vw,84px);line-height:.88}
+  .hero h1 span{color:var(--orange)}
+  label.lbl{display:block;font-weight:700;font-size:15px;margin:0 0 8px}
+  input[type=email],textarea{width:100%;font:inherit;font-size:16px;color:var(--plum);background:var(--cream);border:2px solid var(--cream);border-radius:16px;padding:14px 16px;min-height:54px}
+  textarea{min-height:96px;resize:vertical}
+  input:focus,textarea:focus{outline:3px solid var(--orange);outline-offset:2px}
+  .alert{background:var(--plum-2);border:2px solid var(--error);color:var(--cream);border-radius:16px;padding:14px 16px;font-size:15px}
+  .alert strong{color:var(--error)}
+
+  /* Day header */
+  .dayhead{padding:10px 0 18px;display:flex;flex-direction:column;gap:10px}
+  .daynum{font-size:clamp(64px,20vw,104px);line-height:.85;color:var(--orange)}
+  .daynum small{font-size:.38em;color:var(--cream);letter-spacing:0}
+  .dots{display:grid;grid-template-columns:repeat(21,minmax(0,1fr));gap:4px;margin-top:6px}
+  .dot{aspect-ratio:1;border-radius:99px;background:var(--plum-3)}
+  .dot.done{background:var(--pink)}
+  .dot.done.all3{background:var(--orange)}
+  .dot.missed{background:transparent;border:2px solid var(--plum-3)}
+  .dot.today{box-shadow:0 0 0 2px var(--plum),0 0 0 4px var(--cream)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--dim)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:99px;margin-right:6px;vertical-align:-1px}
+
+  /* Segmented day choice */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--plum-2);border-radius:999px;padding:5px;margin:0 0 16px}
+  .seg button{min-height:48px;border:0;border-radius:999px;background:transparent;color:var(--soft);font:inherit;font-weight:700;font-size:15px;cursor:pointer;line-height:1.15}
+  .seg button[aria-pressed="true"]{background:var(--cream);color:var(--plum)}
+  .seg button small{display:block;font-weight:500;font-size:12px;opacity:.8}
+
+  /* Commitment toggles */
+  .promises{display:flex;flex-direction:column;gap:12px;margin:0 0 16px;padding:0;border:0}
+  .promises legend{font-weight:700;font-size:15px;margin:0 0 10px;padding:0}
+  .promise{position:relative;display:flex;gap:14px;align-items:flex-start;border-radius:22px;padding:18px;cursor:pointer;background:var(--plum-2);border:2px solid var(--plum-3);transition:background .15s,border-color .15s}
+  .promise input{position:absolute;opacity:0;width:1px;height:1px}
+  .promise .box{flex:0 0 auto;width:36px;height:36px;border-radius:99px;border:3px solid var(--dim);display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .promise .box svg{opacity:0}
+  .promise .k{font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--peach)}
+  .promise .what{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;line-height:1.1;margin:2px 0 2px}
+  .promise .sub{font-size:14px;color:var(--soft)}
+  .promise input:checked ~ .box{background:var(--cream);border-color:var(--cream)}
+  .promise input:checked ~ .box svg{opacity:1}
+  .promise.mind:has(input:checked){background:var(--pink);border-color:var(--pink);color:var(--plum)}
+  .promise.body:has(input:checked){background:var(--orange);border-color:var(--orange);color:var(--plum)}
+  .promise.goals:has(input:checked){background:var(--cream);border-color:var(--cream);color:var(--plum)}
+  .promise.goals:has(input:checked) .box{background:var(--plum);border-color:var(--plum)}
+  .promise.goals:has(input:checked) .box svg path{stroke:var(--cream)}
+  .promise:has(input:checked) .k{color:var(--plum)}
+  .promise:has(input:checked) .sub{color:var(--plum)}
+  .promise:has(input:focus-visible){outline:3px solid var(--peach);outline-offset:3px}
+
+  .card{background:var(--plum-2);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;margin:0 0 16px}
+  .card.reflect{background:var(--plum-3);border:2px solid var(--peach)}
+  .card h2{font-size:28px}
+
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:22px 0 14px}
+  .stat{background:var(--plum-2);border-radius:18px;padding:14px 10px;text-align:center}
+  .stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:32px;line-height:1;color:var(--cream)}
+  .stat span{font-size:12px;color:var(--dim);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .reward{border-radius:18px;padding:14px 16px;background:linear-gradient(0deg,var(--plum-2),var(--plum-2));border:2px dashed var(--plum-3);font-size:15px}
+  .reward strong{color:var(--peach)}
+
+  /* Success / share */
+  .done-hero{padding:8px 0 16px}
+  .done-hero h1{font-size:clamp(48px,14vw,72px);line-height:.9}
+  .done-hero h1 span{color:var(--pink)}
+  .preview{display:block;width:100%;max-width:300px;margin:0 auto;border-radius:18px;box-shadow:0 10px 40px rgba(0,0,0,.45)}
+  .stack{display:flex;flex-direction:column;gap:10px}
+
+  footer{padding:36px 0 44px;text-align:center;color:var(--dim);font-size:14px}
+  .spin{width:22px;height:22px;border-radius:99px;border:3px solid currentColor;border-right-color:transparent;animation:s .8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brandrow">
+      <span class="eyebrow">21-Day Challenge</span>
+      <button class="signout" id="signout" type="button" hidden>Not you?</button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <section id="vLoading" hidden aria-live="polite">
+    <div style="display:flex;align-items:center;gap:12px;padding:40px 0;color:var(--soft)"><span class="spin" aria-hidden="true"></span> Loading your check-in…</div>
+  </section>
+
+  <!-- Sign in -->
+  <section id="vSignin" hidden>
+    <div class="hero">
+      <h1>Show up.<br><span>Check in.</span></h1>
+      <p class="muted" style="margin-top:14px;font-size:18px">Enter the email you used to join, and we'll pull up your three promises.</p>
+    </div>
+    <form id="signinForm" class="stack" style="margin-top:22px" novalidate>
+      <div>
+        <label class="lbl" for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" inputmode="email" required>
+      </div>
+      <div class="alert" id="signinErr" role="alert" hidden></div>
+      <button class="btn" id="signinBtn" type="submit">Let's go</button>
+    </form>
+  </section>
+
+  <!-- Main check-in -->
+  <section id="vMain" hidden>
+    <div class="dayhead">
+      <p id="greet" class="muted" style="font-size:18px"></p>
+      <h1 class="daynum" id="dayTitle"></h1>
+      <div class="dots" id="dots" role="img"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--orange)"></i>All 3 kept</span>
+        <span><i style="background:var(--pink)"></i>Checked in</span>
+        <span><i style="border:2px solid var(--plum-3)"></i>Missed</span>
+      </div>
+    </div>
+
+    <!-- Before Day 1 -->
+    <div id="preStart" class="card" hidden>
+      <h2 id="preTitle"></h2>
+      <p class="muted">Check-ins open on Day 1. Until then, here's what you promised yourself.</p>
+      <p class="small muted"><strong style="color:var(--cream)">Kickoff call:</strong> Sun, Nov 29 · 9:00 AM ET</p>
+    </div>
+
+    <!-- After the challenge -->
+    <div id="ended" class="card" hidden>
+      <h2>You did it.</h2>
+      <p class="muted" id="endedText"></p>
+    </div>
+
+    <form id="checkinForm" novalidate>
+      <div class="seg" id="seg" role="group" aria-label="Which day are you checking in for?" hidden></div>
+      <p class="small muted" id="segNote" style="margin:-6px 0 14px" hidden>Forgot yesterday? You can catch up until tonight.</p>
+
+      <fieldset class="promises" id="promises">
+        <legend id="promisesLegend">Tap each one you kept:</legend>
+        <label class="promise mind">
+          <input type="checkbox" name="mind" id="cMind">
+          <span class="box" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#1E1220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><span class="k">Mind</span><span class="what" id="tMind" style="display:block"></span><span class="sub" id="sMind"></span></span>
+        </label>
+        <label class="promise body">
+          <input type="checkbox" name="body" id="cBody">
+          <span class="box" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#1E1220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><span class="k">Body</span><span class="what" id="tBody" style="display:block"></span></span>
+        </label>
+        <label class="promise goals">
+          <input type="checkbox" name="goals" id="cGoals">
+          <span class="box" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#1E1220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><span class="k">Goals</span><span class="what" id="tGoals" style="display:block"></span><span class="sub" id="sGoals"></span></span>
+        </label>
+      </fieldset>
+
+      <div class="card reflect" id="reflectCard" hidden>
+        <span class="eyebrow">Weekly reflection</span>
+        <label class="lbl" for="reflection" id="reflectPrompt" style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;line-height:1.15;margin:0"></label>
+        <textarea id="reflection" name="reflection"></textarea>
+      </div>
+
+      <div class="card" id="noteCard">
+        <label class="lbl" for="note" style="margin:0">Anything you want to remember about today? <span style="font-weight:500;color:var(--dim)">(optional)</span></label>
+        <textarea id="note" name="note" placeholder="A win, a struggle, what helped…"></textarea>
+      </div>
+
+      <p class="small muted" style="margin:0 0 12px">Didn't keep all three? Check in anyway. Showing up is the habit.</p>
+      <div class="alert" id="saveErr" role="alert" hidden style="margin-bottom:12px"></div>
+      <button class="btn" type="submit" id="saveBtn">Check in</button>
+    </form>
+
+    <div class="stats" id="stats">
+      <div class="stat"><b id="stDays">0</b><span>Days in</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>Streak</span></div>
+      <div class="stat"><b id="stAll3">0</b><span>All 3 kept</span></div>
+    </div>
+    <p class="reward" id="reward"></p>
+
+    <!-- Commitments summary shown before Day 1 / after end -->
+    <div class="card" id="mineCard" hidden style="margin-top:16px">
+      <span class="eyebrow">My 3 promises</span>
+      <p><strong>Mind:</strong> <span id="mMind"></span></p>
+      <p><strong>Body:</strong> <span id="mBody"></span></p>
+      <p><strong>Goals:</strong> <span id="mGoals"></span></p>
+    </div>
+  </section>
+
+  <!-- Saved + share -->
+  <section id="vDone" hidden aria-live="polite">
+    <div class="done-hero">
+      <p class="eyebrow" id="doneEyebrow"></p>
+      <h1 id="doneTitle" tabindex="-1" style="margin-top:8px"></h1>
+      <p class="muted" id="doneText" style="margin-top:12px;font-size:18px"></p>
+    </div>
+    <div class="card">
+      <h2 style="font-size:26px">Share your check-in</h2>
+      <p class="muted small">Post it to your Story and tag <strong style="color:var(--cream)">@cassieinmotion_</strong>. Accountability is contagious.</p>
+      <img class="preview" id="shareImg" alt="Your check-in graphic for Instagram Stories">
+      <div class="alert" id="igNote" hidden><strong>Tip:</strong> Instagram's built-in browser can't save images. Tap the ••• menu and choose <em>Open in browser</em>, then share from there.</div>
+      <div class="stack">
+        <button class="btn pink" type="button" id="shareBtn" hidden>Share to Instagram</button>
+        <a class="btn" id="dlBtn" download="21-day-checkin.png" href="#">Save image</a>
+        <p class="small muted" id="dlHint" hidden>On iPhone: tap Save image, then press and hold the picture and choose "Save to Photos."</p>
+      </div>
+    </div>
+    <button class="btn ghost" type="button" id="backBtn">Back to my check-in</button>
+  </section>
+
+  <footer>@cassieinmotion_ · Small and done beats big and someday.</footer>
+</div>
+
+<script>
+/* ====== SETTINGS ====== */
+const SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';                 // Apps Script web app URL (ends in /exec)
+const COMMIT_FORM_URL = 'https://cassie-lwb.systeme.io/0d2f561f';  // thank-you page with the commitment form
+const REFLECTIONS = {
+  7:  'Week 1 is done. What surprised you most about this first week?',
+  14: "What's been the hardest part so far, and what's one small adjustment you'll make for the final week?",
+  21: 'You made it. Who are you becoming, and which promise will you keep going after today?'
+};
+/* ====================== */
+
+const $ = id => document.getElementById(id);
+const views = ['vLoading','vSignin','vMain','vDone'];
+const show = v => { views.forEach(x => $(x).hidden = x !== v); window.scrollTo(0,0); };
+const store = {
+  get(){ try { return localStorage.getItem('c21email') || ''; } catch(e){ return ''; } },
+  set(v){ try { localStorage.setItem('c21email', v); } catch(e){} },
+  clear(){ try { localStorage.removeItem('c21email'); } catch(e){} }
+};
+
+let state = { email:'', participant:null, calendar:null, checkins:{}, day:null };
+
+async function api(body){
+  // Sent as plain text so the browser skips the CORS preflight Apps Script can't answer
+  const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(body) });
+  return res.json();
+}
+
+/* ---------- Dates ---------- */
+const fmt = (iso, opts) => { const [y,m,d] = iso.split('-').map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-US', Object.assign({ timeZone:'UTC' }, opts)); };
+const short = iso => fmt(iso, { weekday:'short', month:'short', day:'numeric' });
+
+/* ---------- Sign in ---------- */
+async function signIn(email){
+  email = email.trim().toLowerCase();
+  state.email = email;
+  show('vLoading');
+  try {
+    const out = await api({ action:'lookup', email });
+    if (!out.ok) {
+      show('vSignin');
+      $('email').value = email;
+      if (out.error === 'not_found') {
+        signinError(`We couldn't find <strong>${escapeHtml(email)}</strong>. Use the email you paid with. If you haven't made your three promises yet, <a href="${COMMIT_FORM_URL}">fill out the commitment form</a> first.`);
+      } else {
+        signinError("Something went wrong on our end. Try again in a minute, or DM @cassieinmotion_.");
+      }
+      return;
+    }
+    store.set(email);
+    state.participant = out.participant;
+    state.calendar = out.calendar;
+    state.checkins = normalize(out.checkins);
+    renderMain();
+  } catch (e) {
+    show('vSignin');
+    $('email').value = email;
+    signinError("Hmm, we couldn't connect. Check your internet connection and try again.");
+  }
+}
+function signinError(html){ $('signinErr').innerHTML = '<strong>Oops.</strong> ' + html; $('signinErr').hidden = false; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function normalize(c){ const o = {}; Object.keys(c||{}).forEach(k => o[parseInt(k,10)] = c[k]); return o; }
+
+$('signinForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('email').value.trim();
+  $('signinErr').hidden = true;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { signinError('Please enter a valid email.'); $('email').focus(); return; }
+  signIn(v);
+});
+$('signout').addEventListener('click', () => { store.clear(); state = { email:'', participant:null, calendar:null, checkins:{}, day:null }; $('signout').hidden = true; $('email').value=''; $('signinErr').hidden = true; show('vSignin'); });
+
+/* ---------- Progress math ---------- */
+function stats(){
+  const cal = state.calendar, c = state.checkins;
+  const days = Object.keys(c).length;
+  const all3 = Object.values(c).filter(x => x.mind && x.body && x.goals).length;
+  // Streak: consecutive check-ins ending today, or yesterday if today isn't done yet
+  let d = Math.min(cal.todayDay, cal.totalDays);
+  if (!c[d]) d--;
+  let streak = 0;
+  while (d >= 1 && c[d]) { streak++; d--; }
+  // A day is missed once it can no longer be checked in
+  const closedMissed = [];
+  for (let i = 1; i <= Math.min(cal.todayDay - 2, cal.totalDays); i++) if (!c[i] && !cal.tester) closedMissed.push(i);
+  return { days, all3, streak, missed: closedMissed };
+}
+
+/* ---------- Render main ---------- */
+function renderMain(){
+  const p = state.participant, cal = state.calendar;
+  $('signout').hidden = false;
+  $('greet').textContent = p.firstName ? `Hi ${p.firstName}!` : 'Hi there!';
+
+  // Commitment text
+  $('tMind').textContent = p.mindDaily; $('sMind').textContent = p.mindWhat;
+  $('tBody').textContent = p.bodyDaily;
+  $('tGoals').textContent = p.goalDaily; $('sGoals').textContent = p.goal ? 'Toward: ' + p.goal : '';
+  $('mMind').textContent = p.mindDaily + (p.mindWhat ? ` (${p.mindWhat})` : '');
+  $('mBody').textContent = p.bodyDaily;
+  $('mGoals').textContent = p.goalDaily + (p.goal ? `, toward: ${p.goal}` : '');
+
+  const allowed = cal.allowedDays.slice().sort((a,b) => b - a);
+  const before = cal.todayDay < 1 && !cal.tester;
+  const after = cal.todayDay > cal.totalDays + 1 && !cal.tester;
+
+  // Title
+  if (before) {
+    const n = 1 - cal.todayDay;
+    $('dayTitle').innerHTML = n === 1 ? 'Tomorrow<small> is Day 1</small>' : `${n} days<small> to Day 1</small>`;
+  } else if (after || (!allowed.length && cal.todayDay > cal.totalDays)) {
+    $('dayTitle').innerHTML = '21<small> of 21</small>';
+  } else {
+    const d = Math.min(Math.max(cal.todayDay,1), cal.totalDays);
+    $('dayTitle').innerHTML = `Day ${d}<small> of ${cal.totalDays}</small>`;
+  }
+
+  $('preStart').hidden = !before;
+  if (before) $('preTitle').textContent = 'Day 1 is ' + fmt(cal.dates[1], { weekday:'long', month:'long', day:'numeric' }) + '.';
+  $('ended').hidden = !(after || (!allowed.length && cal.todayDay > cal.totalDays));
+  $('checkinForm').hidden = !allowed.length;
+  $('mineCard').hidden = !!allowed.length;
+
+  renderDots();
+  renderStats();
+
+  if (allowed.length) {
+    // Default to today if it isn't done yet, otherwise the open day that still needs a check-in, otherwise today
+    const pick = allowed.find(d => !state.checkins[d]) || allowed[0];
+    renderSeg(allowed, pick);
+    selectDay(pick);
+  }
+  if (!$('ended').hidden) {
+    const s = stats();
+    $('endedText').textContent = s.days >= cal.totalDays
+      ? 'All 21 days checked in. You earned $42 off my 12-week program in January. Watch your inbox.'
+      : `You checked in ${s.days} of 21 days and finished the challenge. You earned $21 off my 12-week program in January. Watch your inbox.`;
+  }
+  show('vMain');
+}
+
+function renderDots(){
+  const cal = state.calendar, c = state.checkins;
+  const box = $('dots'); box.innerHTML = '';
+  const s = stats();
+  for (let d = 1; d <= cal.totalDays; d++) {
+    const el = document.createElement('span');
+    el.className = 'dot';
+    if (c[d]) { el.classList.add('done'); if (c[d].mind && c[d].body && c[d].goals) el.classList.add('all3'); }
+    else if (s.missed.indexOf(d) >= 0) el.classList.add('missed');
+    if (d === cal.todayDay) el.classList.add('today');
+    box.appendChild(el);
+  }
+  box.setAttribute('aria-label', `${s.days} of ${cal.totalDays} days checked in`);
+}
+
+function renderStats(){
+  const s = stats(), cal = state.calendar;
+  $('stDays').textContent = s.days;
+  $('stStreak').textContent = s.streak;
+  $('stAll3').textContent = s.all3;
+  const left = cal.totalDays - s.days;
+  let msg;
+  if (s.days >= cal.totalDays) msg = '<strong>All 21 days checked in.</strong> You earned $42 off my 12-week program in January.';
+  else if (s.missed.length) msg = `<strong>You're still in it.</strong> Finish the challenge for $21 off my 12-week program in January. Never miss twice.`;
+  else msg = `<strong>On track for $42 off</strong> my 12-week program. ${left} check-in${left === 1 ? '' : 's'} to go. Miss one? Catch up the next day.`;
+  $('reward').innerHTML = msg;
+}
+
+function renderSeg(allowed, pick){
+  const seg = $('seg'); seg.innerHTML = '';
+  const cal = state.calendar;
+  if (allowed.length < 2) { seg.hidden = true; $('segNote').hidden = true; return; }
+  // Testers get every day; show a compact picker instead
+  const list = cal.tester ? allowed.slice().sort((a,b)=>a-b) : allowed.slice().sort((a,b)=>a-b);
+  if (cal.tester) seg.style.gridTemplateColumns = 'repeat(7,minmax(0,1fr))'; else seg.style.gridTemplateColumns = '';
+  if (cal.tester) seg.style.borderRadius = '18px';
+  list.forEach(d => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-pressed', d === pick ? 'true' : 'false');
+    const label = cal.tester ? `${d}` : (d === cal.todayDay ? 'Today' : 'Yesterday');
+    b.innerHTML = cal.tester ? `${label}` : `${label}<small>Day ${d} · ${state.checkins[d] ? 'done' : short(cal.dates[d])}</small>`;
+    b.setAttribute('aria-label', `Day ${d}, ${short(cal.dates[d])}${state.checkins[d] ? ', already checked in' : ''}`);
+    b.addEventListener('click', () => { [...seg.children].forEach(x => x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); selectDay(d); });
+    seg.appendChild(b);
+  });
+  seg.hidden = false;
+  const y = cal.todayDay - 1;
+  $('segNote').hidden = cal.tester || !allowed.includes(y) || !!state.checkins[y];
+}
+
+function selectDay(d){
+  state.day = d;
+  const prev = state.checkins[d] || {};
+  $('cMind').checked = !!prev.mind; $('cBody').checked = !!prev.body; $('cGoals').checked = !!prev.goals;
+  $('note').value = prev.note || '';
+  const prompt = REFLECTIONS[d];
+  $('reflectCard').hidden = !prompt;
+  $('reflectPrompt').textContent = prompt || '';
+  $('reflection').value = prev.reflection || '';
+  const label = d === state.calendar.todayDay ? 'today' : `Day ${d}`;
+  $('promisesLegend').textContent = d === state.calendar.todayDay ? 'Tap each one you kept today:' : `Tap each one you kept on Day ${d}:`;
+  $('saveBtn').textContent = prev.mind !== undefined ? `Update Day ${d} check-in` : `Check in for Day ${d}`;
+  $('saveErr').hidden = true;
+}
+
+/* ---------- Save ---------- */
+$('checkinForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const d = state.day;
+  const body = {
+    action:'checkin', email: state.email, day: d,
+    mind: $('cMind').checked, body: $('cBody').checked, goals: $('cGoals').checked,
+    note: $('note').value.trim(), reflection: REFLECTIONS[d] ? $('reflection').value.trim() : ''
+  };
+  const btn = $('saveBtn'); const txt = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Saving…'; $('saveErr').hidden = true;
+  try {
+    const out = await api(body);
+    if (!out.ok) {
+      if (out.error === 'day_closed') throw new Error('closed');
+      throw new Error('fail');
+    }
+    state.calendar = out.calendar;
+    state.checkins = normalize(out.checkins);
+    await renderDone(d, body);
+  } catch (err) {
+    $('saveErr').innerHTML = err.message === 'closed'
+      ? '<strong>That day has closed.</strong> Check-ins are open for today and yesterday only. Refresh the page to see today.'
+      : "<strong>That didn't save.</strong> Check your connection and tap the button again. If it keeps happening, DM @cassieinmotion_.";
+    $('saveErr').hidden = false;
+  } finally {
+    btn.disabled = false; btn.textContent = txt;
+  }
+});
+
+/* ---------- Done + share ---------- */
+let shareFile = null, shareUrl = null;
+async function renderDone(d, entry){
+  const s = stats(), count = [entry.mind, entry.body, entry.goals].filter(Boolean).length;
+  $('doneEyebrow').textContent = `Day ${d} of ${state.calendar.totalDays} · ${short(state.calendar.dates[d])}`;
+  $('doneTitle').innerHTML = count === 3 ? 'All three.<br><span>You kept your word.</span>'
+    : count > 0 ? `${count} of 3.<br><span>You showed up.</span>`
+    : 'Checked in.<br><span>That counts.</span>';
+  $('doneText').textContent = count === 3 ? `That's ${s.days} day${s.days===1?'':'s'} checked in. Keep the streak going.`
+    : count > 0 ? 'Progress, not perfection. Tomorrow is another rep.'
+    : "Hard days happen. Showing up anyway is how the habit gets built. Never miss twice.";
+  show('vDone');
+  $('doneTitle').focus({ preventScroll:true });
+
+  const p = state.participant;
+  const blob = await drawStory({
+    day: d, total: state.calendar.totalDays, name: p.firstName,
+    items: [
+      { k:'MIND', t:p.mindDaily, done:entry.mind },
+      { k:'BODY', t:p.bodyDaily, done:entry.body },
+      { k:'GOALS', t:p.goalDaily, done:entry.goals }
+    ],
+    checkins: state.checkins
+  });
+  if (shareUrl) URL.revokeObjectURL(shareUrl);
+  shareUrl = URL.createObjectURL(blob);
+  shareFile = new File([blob], `day-${d}-checkin.png`, { type:'image/png' });
+  $('shareImg').src = shareUrl;
+  $('dlBtn').href = shareUrl;
+  $('dlBtn').download = `day-${d}-checkin.png`;
+
+  const inApp = /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+  $('igNote').hidden = !inApp;
+  let canShare = false;
+  try { canShare = !!(navigator.canShare && navigator.canShare({ files:[shareFile] })); } catch(e){}
+  $('shareBtn').hidden = !canShare;
+  $('dlBtn').className = canShare ? 'btn ghost' : 'btn pink';
+  $('dlHint').hidden = canShare || !/iPhone|iPad/i.test(navigator.userAgent);
+}
+
+$('shareBtn').addEventListener('click', async () => {
+  try { await navigator.share({ files:[shareFile], text:'Checked in! #21DayChallenge @cassieinmotion_' }); } catch(e){ /* closed the share sheet */ }
+});
+$('backBtn').addEventListener('click', () => renderMain());
+
+/* ---------- Story graphic (1080 x 1920) ---------- */
+async function drawStory(o){
+  try {
+    await Promise.all([
+      document.fonts.load('800 200px "Bricolage Grotesque"'),
+      document.fonts.load('700 40px "DM Sans"'),
+      document.fonts.load('500 40px "DM Sans"')
+    ]);
+  } catch(e){}
+  const W = 1080, H = 1920;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  const C = { plum:'#1E1220', plum2:'#2E1E2E', plum3:'#3D2A3B', cream:'#FFF7F0', soft:'#E9DCE4', orange:'#FF6B1A', pink:'#FF2D87', peach:'#FFB37A' };
+  const DISPLAY = '"Bricolage Grotesque", "Arial Black", sans-serif';
+  const BODY = '"DM Sans", Arial, sans-serif';
+
+  x.fillStyle = C.plum; x.fillRect(0,0,W,H);
+  // Color blocks
+  x.fillStyle = C.orange; roundRect(x, -60, -60, W+120, 760, 0); x.fill();
+  x.save(); x.translate(860, 655); x.rotate(-0.1); x.fillStyle = C.pink; roundRect(x, -150, -80, 300, 160, 80); x.fill(); x.restore();
+
+  // Header text (keep clear of IG's top bar: start ~230px down)
+  x.fillStyle = C.plum; x.font = `700 34px ${BODY}`; x.textBaseline = 'alphabetic';
+  spaced(x, '21-DAY CHALLENGE', 80, 260, 5);
+  // Shrink the big number if needed so "Day 12" fits the width
+  let fs = 300; x.font = `800 ${fs}px ${DISPLAY}`;
+  while (x.measureText(`Day ${o.day}`).width > W - 150 && fs > 160) { fs -= 8; x.font = `800 ${fs}px ${DISPLAY}`; }
+  x.fillText(`Day ${o.day}`, 70, 540);
+  x.fillStyle = C.cream; x.font = `800 72px ${DISPLAY}`;
+  x.fillText(`of ${o.total}`, 84, 640);
+
+  // Badge on the pink pill
+  const kept = o.items.filter(i => i.done).length;
+  x.save(); x.translate(860, 655); x.rotate(-0.1);
+  x.fillStyle = C.plum; x.textAlign = 'center'; x.font = `800 64px ${DISPLAY}`; x.fillText(`${kept}/3`, 0, 10);
+  x.font = `700 26px ${BODY}`; x.fillText('KEPT', 0, 48);
+  x.restore(); x.textAlign = 'left';
+
+  // Three promises
+  let y = 830;
+  o.items.forEach((it, i) => {
+    const h = 230;
+    x.fillStyle = it.done ? [C.pink, C.orange, C.cream][i] : C.plum2;
+    roundRect(x, 70, y, W - 140, h, 44); x.fill();
+    if (!it.done) { x.strokeStyle = C.plum3; x.lineWidth = 4; roundRect(x, 72, y+2, W - 144, h-4, 42); x.stroke(); }
+    // check circle
+    const cx = 160, cy = y + h/2;
+    x.beginPath(); x.arc(cx, cy, 44, 0, Math.PI*2);
+    if (it.done) { x.fillStyle = i === 2 ? C.plum : C.cream; x.fill(); x.strokeStyle = i === 2 ? C.cream : C.plum; x.lineWidth = 11; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); x.moveTo(cx-20, cy+2); x.lineTo(cx-5, cy+18); x.lineTo(cx+22, cy-16); x.stroke(); }
+    else { x.strokeStyle = '#7A6577'; x.lineWidth = 7; x.stroke(); }
+    const ink = it.done ? C.plum : C.soft;
+    x.font = `800 50px ${DISPLAY}`;
+    const lines = wrapLines(x, it.t || '', W - 140 - 200, 2);
+    const top = lines.length > 1 ? y + 66 : y + 86;
+    x.fillStyle = it.done ? C.plum : C.peach; x.font = `700 30px ${BODY}`;
+    spaced(x, it.k, 240, top, 5);
+    x.fillStyle = ink; x.font = `800 50px ${DISPLAY}`;
+    lines.forEach((l, j) => x.fillText(l, 240, top + 66 + j * 58));
+    y += h + 30;
+  });
+
+  // 21-dot progress
+  const dotsY = 1650, gap = 12, size = (W - 140 - gap*20) / 21;
+  for (let d = 1; d <= o.total; d++) {
+    const c = o.checkins[d];
+    const dx = 70 + (d-1)*(size+gap);
+    x.beginPath(); x.arc(dx + size/2, dotsY, size/2, 0, Math.PI*2);
+    x.fillStyle = c ? ((c.mind && c.body && c.goals) ? C.orange : C.pink) : C.plum3; x.fill();
+    if (d === o.day) { x.strokeStyle = C.cream; x.lineWidth = 5; x.beginPath(); x.arc(dx + size/2, dotsY, size/2 + 7, 0, Math.PI*2); x.stroke(); }
+  }
+
+  // Footer (keep clear of IG's reply bar at the bottom)
+  x.fillStyle = C.cream; x.font = `700 36px ${BODY}`;
+  x.fillText('@cassieinmotion_', 70, 1752);
+  x.fillStyle = C.soft; x.font = `500 30px ${BODY}`;
+  x.fillText('Small and done beats big and someday.', 70, 1798);
+
+  return new Promise(r => cv.toBlob(r, 'image/png'));
+}
+function roundRect(x, X, Y, w, h, r){ x.beginPath(); x.moveTo(X+r, Y); x.arcTo(X+w, Y, X+w, Y+h, r); x.arcTo(X+w, Y+h, X, Y+h, r); x.arcTo(X, Y+h, X, Y, r); x.arcTo(X, Y, X+w, Y, r); x.closePath(); }
+function spaced(x, text, X, Y, sp){ let cx = X; for (const ch of text) { x.fillText(ch, cx, Y); cx += x.measureText(ch).width + sp; } }
+function wrapLines(x, text, maxW, maxLines){
+  const words = String(text).split(/\s+/).filter(Boolean); let line = '', lines = [];
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) { lines = lines.slice(0, maxLines); let l = lines[maxLines-1]; while (x.measureText(l + '…').width > maxW && l.length) l = l.slice(0,-1); lines[maxLines-1] = l.trimEnd() + '…'; }
+  return lines;
+}
+
+/* ---------- Start ---------- */
+(function start(){
+  const q = new URLSearchParams(location.search).get('email');
+  if (q) history.replaceState(null, '', location.pathname);
+  const email = q || store.get();
+  if (email) signIn(email); else show('vSignin');
+})();
+</script>
+</body>
+</html>
